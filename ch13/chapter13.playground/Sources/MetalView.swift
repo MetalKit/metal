@@ -27,7 +27,6 @@ public class MetalView: MTKView, NSWindowDelegate {
     }
     
     override public func drawRect(dirtyRect: NSRect) {
-        super.drawRect(dirtyRect)
         if let drawable = currentDrawable {
             let commandBuffer = queue.commandBuffer()
             let commandEncoder = commandBuffer.computeCommandEncoder()
