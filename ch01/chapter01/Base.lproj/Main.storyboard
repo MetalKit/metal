@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="9531" systemVersion="15C50" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="11163.2" systemVersion="16A254g" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9531"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11163.2"/>
     </dependencies>
     <scenes>
         <!--Application-->
@@ -673,8 +673,11 @@
                         <rect key="frame" x="0.0" y="0.0" width="480" height="270"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Xlv-xm-iWj">
-                                <rect key="frame" x="18" y="110" width="444" height="50"/>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Xlv-xm-iWj">
+                                <rect key="frame" x="18" y="99" width="444" height="72"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="72" id="qBP-GW-cE6"/>
+                                </constraints>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Label" id="Jzz-ex-W3x">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -682,6 +685,11 @@
                                 </textFieldCell>
                             </textField>
                         </subviews>
+                        <constraints>
+                            <constraint firstItem="Xlv-xm-iWj" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="20" symbolic="YES" id="2EG-P4-Bft"/>
+                            <constraint firstItem="Xlv-xm-iWj" firstAttribute="centerY" secondItem="m2S-Jp-Qdl" secondAttribute="centerY" id="JS5-Nd-Fba"/>
+                            <constraint firstAttribute="trailing" secondItem="Xlv-xm-iWj" secondAttribute="trailing" constant="20" symbolic="YES" id="zFv-gV-dhn"/>
+                        </constraints>
                     </view>
                     <connections>
                         <outlet property="label" destination="Xlv-xm-iWj" id="j10-Xo-Jzk"/>

@@ -6,39 +6,36 @@
 //  Copyright © 2016 Marius Horga. All rights reserved.
 //
 
-import Cocoa
+import UIKit
 
-class MetalView: NSView {
+class MetalView: UIView {
     
-    override func drawRect(dirtyRect: NSRect) {
-        super.drawRect(dirtyRect)
-        render()
+    var commandQueue: MTLCommandQueue!
+    
+    var metalLayer: CAMetalLayer {
+        return self.layer as! CAMetalLayer
     }
     
     override class func layerClass() -> AnyClass {
         return CAMetalLayer.self
     }
     
-    var metalLayer: CAMetalLayer {
-        return layer as! CAMetalLayer
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        let device = MTLCreateSystemDefaultDevice()!
+        commandQueue = device.newCommandQueue()
+        redraw()
     }
     
-    func render() {
-        let device = MTLCreateSystemDefaultDevice()!
-        metalLayer.device = device
-        metalLayer.pixelFormat = .BGRA8Unorm
-        let drawable = metalLayer.nextDrawable()
-        let texture = drawable!.texture
-        let rpd = MTLRenderPassDescriptor()
-        rpd.colorAttachments[0].texture = texture
-        rpd.colorAttachments[0].loadAction = .Clear
-        rpd.colorAttachments[0].storeAction = .Store
-        rpd.colorAttachments[0].clearColor = MTLClearColor(red: 1, green: 0, blue: 0, alpha: 1)
-        let commandQueue = device.newCommandQueue()
+    private func redraw() {
+        let drawable = metalLayer.nextDrawable()!
+        let descriptor = MTLRenderPassDescriptor()
+        descriptor.colorAttachments[0].clearColor = MTLClearColorMake(0, 1, 1, 1)
+        descriptor.colorAttachments[0].texture = drawable.texture
         let commandBuffer = commandQueue.commandBuffer()
-        let commandEncoder = commandBuffer.renderCommandEncoderWithDescriptor(rpd)
+        let commandEncoder = commandBuffer.renderCommandEncoder(with: descriptor)
         commandEncoder.endEncoding()
-        commandBuffer.presentDrawable(drawable!)
+        commandBuffer.present(drawable)
         commandBuffer.commit()
     }
 }

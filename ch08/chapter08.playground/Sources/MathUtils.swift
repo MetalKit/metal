@@ -21,14 +21,16 @@ struct Matrix {
         ]
     }
     
-    func translationMatrix(var matrix: Matrix, _ position: float3) -> Matrix {
+    func translationMatrix(_ matrix: Matrix, _ position: float3) -> Matrix {
+        var matrix = matrix
         matrix.m[12] = position.x
         matrix.m[13] = position.y
         matrix.m[14] = position.z
         return matrix
     }
     
-    func scalingMatrix(var matrix: Matrix, _ scale: Float) -> Matrix {
+    func scalingMatrix(_ matrix: Matrix, _ scale: Float) -> Matrix {
+        var matrix = matrix
         matrix.m[0] = scale
         matrix.m[5] = scale
         matrix.m[10] = scale
@@ -36,7 +38,8 @@ struct Matrix {
         return matrix
     }
     
-    func rotationMatrix(var matrix: Matrix, _ rot: float3) -> Matrix {
+    func rotationMatrix(_ matrix: Matrix, _ rot: float3) -> Matrix {
+        var matrix = matrix
         matrix.m[0] = cos(rot.y) * cos(rot.z)
         matrix.m[4] = cos(rot.z) * sin(rot.x) * sin(rot.y) - cos(rot.x) * sin(rot.z)
         matrix.m[8] = cos(rot.x) * cos(rot.z) * sin(rot.y) + sin(rot.x) * sin(rot.z)
@@ -50,7 +53,8 @@ struct Matrix {
         return matrix
     }
     
-    func modelMatrix(var matrix: Matrix) -> Matrix {
+    func modelMatrix(matrix: Matrix) -> Matrix {
+        var matrix = matrix
         matrix = rotationMatrix(matrix, float3(0.0, 0.0, 0.1))
         matrix = scalingMatrix(matrix, 0.25)
         matrix = translationMatrix(matrix, float3(0.0, 0.5, 0.0))

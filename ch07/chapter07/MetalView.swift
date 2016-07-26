@@ -10,57 +10,58 @@ import MetalKit
 
 class MetalView: MTKView {
     
-    var vertex_buffer: MTLBuffer!
-    var uniform_buffer: MTLBuffer!
-    var rps: MTLRenderPipelineState! = nil
+    var commandQueue: MTLCommandQueue?
+    var rps: MTLRenderPipelineState?
+    var vertexBuffer: MTLBuffer!
+    var uniformBuffer: MTLBuffer!
     
     required init(coder: NSCoder) {
         super.init(coder: coder)
-        device = MTLCreateSystemDefaultDevice()
         createBuffers()
         registerShaders()
     }
     
-    override func drawRect(dirtyRect: NSRect) {
-        super.drawRect(dirtyRect)
-        if let rpd = currentRenderPassDescriptor, drawable = currentDrawable {
-            rpd.colorAttachments[0].clearColor = MTLClearColorMake(0.5, 0.5, 0.5, 1.0)
-            let command_buffer = device!.newCommandQueue().commandBuffer()
-            let command_encoder = command_buffer.renderCommandEncoderWithDescriptor(rpd)
-            command_encoder.setRenderPipelineState(rps)
-            command_encoder.setVertexBuffer(vertex_buffer, offset: 0, atIndex: 0)
-            command_encoder.setVertexBuffer(uniform_buffer, offset: 0, atIndex: 1)
-            command_encoder.drawPrimitives(.Triangle, vertexStart: 0, vertexCount: 3, instanceCount: 1)
-            command_encoder.endEncoding()
-            command_buffer.presentDrawable(drawable)
-            command_buffer.commit()
-        }
-    }
-    
     func createBuffers() {
-        let vertex_data = [
-            Vertex(position: [-1.0, -1.0, 0.0, 1.0], color: [1, 0, 0, 1]),
-            Vertex(position: [ 1.0, -1.0, 0.0, 1.0], color: [0, 1, 0, 1]),
-            Vertex(position: [ 0.0,  1.0, 0.0, 1.0], color: [0, 0, 1, 1])
+        device = MTLCreateSystemDefaultDevice()!
+        commandQueue = device!.newCommandQueue()
+        let vertex_data = [Vertex(position: [-1.0, -1.0, 0.0, 1.0], color: [1, 0, 0, 1]),
+                           Vertex(position: [ 1.0, -1.0, 0.0, 1.0], color: [0, 1, 0, 1]),
+                           Vertex(position: [ 0.0,  1.0, 0.0, 1.0], color: [0, 0, 1, 1])
         ]
-        vertex_buffer = device!.newBufferWithBytes(vertex_data, length: sizeof(Vertex) * 3, options:[])
-        uniform_buffer = device!.newBufferWithLength(sizeof(Float) * 16, options: [])
-        let bufferPointer = uniform_buffer.contents()
-        memcpy(bufferPointer, Matrix().modelMatrix(Matrix()).m, sizeof(Float) * 16)
+        vertexBuffer = device!.newBuffer(withBytes: vertex_data, length: sizeof(Vertex.self) * 3, options:[])
+        uniformBuffer = device!.newBuffer(withLength: sizeof(Float.self) * 16, options: [])
+        let bufferPointer = uniformBuffer.contents()
+        memcpy(bufferPointer, Matrix().modelMatrix(Matrix()).m, sizeof(Float.self) * 16)
     }
     
     func registerShaders() {
         let library = device!.newDefaultLibrary()!
-        let vertex_func = library.newFunctionWithName("vertex_func")
-        let frag_func = library.newFunctionWithName("fragment_func")
+        let vertex_func = library.newFunction(withName: "vertex_func")
+        let frag_func = library.newFunction(withName: "fragment_func")
         let rpld = MTLRenderPipelineDescriptor()
         rpld.vertexFunction = vertex_func
         rpld.fragmentFunction = frag_func
-        rpld.colorAttachments[0].pixelFormat = .BGRA8Unorm
+        rpld.colorAttachments[0].pixelFormat = .bgra8Unorm
         do {
-            try rps = device!.newRenderPipelineStateWithDescriptor(rpld)
+            try rps = device!.newRenderPipelineState(with: rpld)
         } catch let error {
             self.print("\(error)")
+        }
+    }
+
+    override func draw(_ dirtyRect: NSRect) {
+        super.draw(dirtyRect)
+        if let rpd = currentRenderPassDescriptor, drawable = currentDrawable {
+            rpd.colorAttachments[0].clearColor = MTLClearColorMake(0.5, 0.5, 0.5, 1.0)
+            let commandBuffer = device!.newCommandQueue().commandBuffer()
+            let commandEncoder = commandBuffer.renderCommandEncoder(with: rpd)
+            commandEncoder.setRenderPipelineState(rps!)
+            commandEncoder.setVertexBuffer(vertexBuffer, offset: 0, at: 0)
+            commandEncoder.setVertexBuffer(uniformBuffer, offset: 0, at: 1)
+            commandEncoder.drawPrimitives(.triangle, vertexStart: 0, vertexCount: 3, instanceCount: 1)
+            commandEncoder.endEncoding()
+            commandBuffer.present(drawable)
+            commandBuffer.commit()
         }
     }
 }
