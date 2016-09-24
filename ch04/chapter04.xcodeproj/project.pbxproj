@@ -33,6 +33,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		293936291D96FDD500008B3A /* Supporting files */ = {
+			isa = PBXGroup;
+			children = (
+				29C87D461C56E93B005F4615 /* Main.storyboard */,
+				29C87D491C56E93B005F4615 /* Info.plist */,
+				29C87D401C56E93A005F4615 /* AppDelegate.swift */,
+			);
+			name = "Supporting files";
+			sourceTree = "<group>";
+		};
 		29C87D341C56E93A005F4615 = {
 			isa = PBXGroup;
 			children = (
@@ -54,9 +64,7 @@
 			children = (
 				29C87D511C56E9DE005F4615 /* MetalView.swift */,
 				29C87D4F1C56E9C2005F4615 /* Shaders.metal */,
-				29C87D461C56E93B005F4615 /* Main.storyboard */,
-				29C87D491C56E93B005F4615 /* Info.plist */,
-				29C87D401C56E93A005F4615 /* AppDelegate.swift */,
+				293936291D96FDD500008B3A /* Supporting files */,
 			);
 			path = chapter04;
 			sourceTree = "<group>";

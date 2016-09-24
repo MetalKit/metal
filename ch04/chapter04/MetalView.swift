@@ -27,36 +27,32 @@ class MetalView: MTKView {
     
     func createBuffer() {
         device = MTLCreateSystemDefaultDevice()!
-        commandQueue = device!.newCommandQueue()
-        let vertexData = [Vertex(position: [-1.0, -1.0, 0.0, 1.0], color: [1, 0, 0, 1]),
-                          Vertex(position: [ 1.0, -1.0, 0.0, 1.0], color: [0, 1, 0, 1]),
-                          Vertex(position: [ 0.0,  1.0, 0.0, 1.0], color: [0, 0, 1, 1])]
-        vertexBuffer = device!.newBuffer(withBytes: vertexData, length: sizeof(Vertex.self) * 3, options:[])
+        commandQueue = device!.makeCommandQueue()
+        let vertexData = [Vertex(position: [-0.5, -0.5, 0.0, 1.0], color: [1, 0, 0, 1]),
+                          Vertex(position: [ 0.5, -0.5, 0.0, 1.0], color: [0, 1, 0, 1]),
+                          Vertex(position: [ 0.0,  0.5, 0.0, 1.0], color: [0, 0, 1, 1])]
+        vertexBuffer = device!.makeBuffer(bytes: vertexData, length: MemoryLayout<Vertex>.size * 3, options:[])
     }
     
     func registerShaders() {
         let library = device!.newDefaultLibrary()!
-        let vertex_func = library.newFunction(withName: "vertex_func")
-        let frag_func = library.newFunction(withName: "fragment_func")
+        let vertex_func = library.makeFunction(name: "vertex_func")
+        let frag_func = library.makeFunction(name: "fragment_func")
         let rpld = MTLRenderPipelineDescriptor()
         rpld.vertexFunction = vertex_func
         rpld.fragmentFunction = frag_func
         rpld.colorAttachments[0].pixelFormat = .bgra8Unorm
-        do {
-            try rps = device!.newRenderPipelineState(with: rpld)
-        } catch let error {
-            self.print("\(error)")
-        }
+        rps = try! device!.makeRenderPipelineState(descriptor: rpld)
     }
     
     override func draw(_ dirtyRect: NSRect) {
         if let drawable = currentDrawable, let rpd = currentRenderPassDescriptor {
             rpd.colorAttachments[0].clearColor = MTLClearColorMake(0.5, 0.5, 0.5, 1.0)
-            let commandBuffer = commandQueue!.commandBuffer()
-            let commandEncoder = commandBuffer.renderCommandEncoder(with: rpd)
+            let commandBuffer = commandQueue!.makeCommandBuffer()
+            let commandEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: rpd)
             commandEncoder.setRenderPipelineState(rps!)
             commandEncoder.setVertexBuffer(vertexBuffer, offset: 0, at: 0)
-            commandEncoder.drawPrimitives(.triangle, vertexStart: 0, vertexCount: 3, instanceCount: 1)
+            commandEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3, instanceCount: 1)
             commandEncoder.endEncoding()
             commandBuffer.present(drawable)
             commandBuffer.commit()
