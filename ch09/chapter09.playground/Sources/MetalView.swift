@@ -14,7 +14,7 @@ public class MetalView: NSObject, MTKViewDelegate {
     override public init() {
         super.init()
         device = MTLCreateSystemDefaultDevice()
-        queue = device.newCommandQueue()
+        queue = device.makeCommandQueue()
         createBuffers()
         createPipeline()
     }
@@ -37,27 +37,27 @@ public class MetalView: NSObject, MTKViewDelegate {
                                    4, 0, 3, 3, 7, 4,   // left
                                    7, 6, 5, 5, 4, 7]   // back
         
-        vertexBuffer = device!.newBuffer(withBytes: vertexData, length: sizeof(Vertex.self) * vertexData.count, options: [])
-        indexBuffer = device!.newBuffer(withBytes: indexData, length: sizeof(UInt16.self) * indexData.count , options: [])
-        uniformBuffer = device!.newBuffer(withLength: sizeof(matrix_float4x4.self), options: [])
+        vertexBuffer = device!.makeBuffer(bytes: vertexData, length: MemoryLayout<Vertex>.size * vertexData.count, options: [])
+        indexBuffer = device!.makeBuffer(bytes: indexData, length: MemoryLayout<UInt16>.size * indexData.count , options: [])
+        uniformBuffer = device!.makeBuffer(length: MemoryLayout<matrix_float4x4>.size, options: [])
     }
     
     func createPipeline() {
-        let path = Bundle.main.pathForResource("Shaders", ofType: "metal")
+        let path = Bundle.main.path(forResource: "Shaders", ofType: "metal")
         let input: String?
         let library: MTLLibrary
         let vert_func: MTLFunction
         let frag_func: MTLFunction
         do {
             input = try String(contentsOfFile: path!, encoding: String.Encoding.utf8)
-            library = try device!.newLibrary(withSource: input!, options: nil)
-            vert_func = library.newFunction(withName: "vertex_func")!
-            frag_func = library.newFunction(withName: "fragment_func")!
+            library = try device!.makeLibrary(source: input!, options: nil)
+            vert_func = library.makeFunction(name: "vertex_func")!
+            frag_func = library.makeFunction(name: "fragment_func")!
             let rpld = MTLRenderPipelineDescriptor()
             rpld.vertexFunction = vert_func
             rpld.fragmentFunction = frag_func
             rpld.colorAttachments[0].pixelFormat = .bgra8Unorm
-            rps = try device!.newRenderPipelineState(with: rpld)
+            rps = try device!.makeRenderPipelineState(descriptor: rpld)
         } catch let e {
             Swift.print("\(e)")
         }
@@ -72,12 +72,12 @@ public class MetalView: NSObject, MTKViewDelegate {
         let cameraPosition = vector_float3(0, 0, -3)
         let viewMatrix = translationMatrix(position: cameraPosition)
 //        let aspect = Float(view.drawableSize.width / view.drawableSize.height)
-        let projMatrix = projectionMatrix(near: 0, far: 10, aspect: 1, fovy: 1)
 //        let projMatrix = projectionMatrix(0, far: 10, aspect: aspect, fovy: 1)
+        let projMatrix = projectionMatrix(near: 0, far: 10, aspect: 1, fovy: 1)
         let modelViewProjectionMatrix = matrix_multiply(projMatrix, matrix_multiply(viewMatrix, modelMatrix))
         let bufferPointer = uniformBuffer.contents()
         var uniforms = Uniforms(modelViewProjectionMatrix: modelViewProjectionMatrix)
-        memcpy(bufferPointer, &uniforms, sizeof(Uniforms.self))
+        memcpy(bufferPointer, &uniforms, MemoryLayout<Uniforms>.size)
     }
     
     public func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {}
@@ -86,14 +86,15 @@ public class MetalView: NSObject, MTKViewDelegate {
         update()
         if let rpd = view.currentRenderPassDescriptor, let drawable = view.currentDrawable {
             rpd.colorAttachments[0].clearColor = MTLClearColorMake(0.5, 0.5, 0.5, 1.0)
-            let commandBuffer = queue.commandBuffer()
-            let commandEncoder = commandBuffer.renderCommandEncoder(with: rpd)
+            let commandBuffer = queue.makeCommandBuffer()
+            let commandEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: rpd)
             commandEncoder.setRenderPipelineState(rps)
             commandEncoder.setFrontFacing(.counterClockwise)
             commandEncoder.setCullMode(.back)
             commandEncoder.setVertexBuffer(vertexBuffer, offset: 0, at: 0)
             commandEncoder.setVertexBuffer(uniformBuffer, offset: 0, at: 1)
-            commandEncoder.drawIndexedPrimitives(.triangle, indexCount: indexBuffer.length / sizeof(UInt16.self), indexType: MTLIndexType.uInt16, indexBuffer: indexBuffer, indexBufferOffset: 0)
+//            commandEncoder.setTriangleFillMode(.lines)
+            commandEncoder.drawIndexedPrimitives(type: .triangle, indexCount: indexBuffer.length / MemoryLayout<UInt16>.size, indexType: MTLIndexType.uint16, indexBuffer: indexBuffer, indexBufferOffset: 0)
             commandEncoder.endEncoding()
             commandBuffer.present(drawable)
             commandBuffer.commit()
