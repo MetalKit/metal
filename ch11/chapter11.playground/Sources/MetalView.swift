@@ -14,13 +14,13 @@ public class MetalView: NSObject, MTKViewDelegate {
     
     func registerShaders() {
         device = MTLCreateSystemDefaultDevice()!
-        queue = device.newCommandQueue()
-        let path = Bundle.main.pathForResource("Shaders", ofType: "metal")
+        queue = device.makeCommandQueue()
+        let path = Bundle.main.path(forResource: "Shaders", ofType: "metal")
         do {
             let input = try String(contentsOfFile: path!, encoding: String.Encoding.utf8)
-            let library = try device.newLibrary(withSource: input, options: nil)
-            let kernel = library.newFunction(withName: "compute")!
-            cps = try device.newComputePipelineState(with: kernel)
+            let library = try device.makeLibrary(source: input, options: nil)
+            let kernel = library.makeFunction(name: "compute")!
+            cps = try device.makeComputePipelineState(function: kernel)
         } catch let e {
             Swift.print("\(e)")
         }
@@ -30,8 +30,8 @@ public class MetalView: NSObject, MTKViewDelegate {
     
     public func draw(in view: MTKView) {
         if let drawable = view.currentDrawable {
-            let commandBuffer = queue.commandBuffer()
-            let commandEncoder = commandBuffer.computeCommandEncoder()
+            let commandBuffer = queue.makeCommandBuffer()
+            let commandEncoder = commandBuffer.makeComputeCommandEncoder()
             commandEncoder.setComputePipelineState(cps)
             commandEncoder.setTexture(drawable.texture, at: 0)
             let threadGroupCount = MTLSizeMake(8, 8, 1)

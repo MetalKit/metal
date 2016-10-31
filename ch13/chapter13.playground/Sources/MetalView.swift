@@ -10,7 +10,7 @@ public class MetalView: MTKView, NSWindowDelegate {
     var mouseBuffer: MTLBuffer!
     var pos: NSPoint!
     
-    override public func mouseDown(_ event: NSEvent) {
+    override public func mouseDown(with event: NSEvent) {
         pos = convertToLayer(convert(event.locationInWindow, from: nil))
         let scale = layer!.contentsScale
         pos.x *= scale
@@ -28,8 +28,8 @@ public class MetalView: MTKView, NSWindowDelegate {
     
     override public func draw(_ dirtyRect: NSRect) {
         if let drawable = currentDrawable {
-            let commandBuffer = queue.commandBuffer()
-            let commandEncoder = commandBuffer.computeCommandEncoder()
+            let commandBuffer = queue.makeCommandBuffer()
+            let commandEncoder = commandBuffer.makeComputeCommandEncoder()
             commandEncoder.setComputePipelineState(cps)
             commandEncoder.setTexture(drawable.texture, at: 0)
             commandEncoder.setBuffer(mouseBuffer, offset: 0, at: 2)
@@ -48,23 +48,23 @@ public class MetalView: MTKView, NSWindowDelegate {
     func update() {
         timer += 0.01
         var bufferPointer = timerBuffer.contents()
-        memcpy(bufferPointer, &timer, sizeof(Float.self))
+        memcpy(bufferPointer, &timer, MemoryLayout<Float>.size)
         bufferPointer = mouseBuffer.contents()
-        memcpy(bufferPointer, &pos, sizeof(NSPoint.self))
+        memcpy(bufferPointer, &pos, MemoryLayout<NSPoint>.size)
     }
     
     func registerShaders() {
-        queue = device!.newCommandQueue()
-        let path = Bundle.main.pathForResource("Shaders", ofType: "metal")
+        queue = device!.makeCommandQueue()
+        let path = Bundle.main.path(forResource: "Shaders", ofType: "metal")
         do {
             let input = try String(contentsOfFile: path!, encoding: String.Encoding.utf8)
-            let library = try device!.newLibrary(withSource: input, options: nil)
-            let kernel = library.newFunction(withName: "compute")!
-            cps = try device!.newComputePipelineState(with: kernel)
+            let library = try device!.makeLibrary(source: input, options: nil)
+            let kernel = library.makeFunction(name: "compute")!
+            cps = try device!.makeComputePipelineState(function: kernel)
         } catch let e {
             Swift.print("\(e)")
         }
-        timerBuffer = device!.newBuffer(withLength: sizeof(Float.self), options: [])
-        mouseBuffer = device!.newBuffer(withLength: sizeof(NSPoint.self), options: [])
+        timerBuffer = device!.makeBuffer(length: MemoryLayout<Float>.size, options: [])
+        mouseBuffer = device!.makeBuffer(length: MemoryLayout<NSPoint>.size, options: [])
     }
 }
