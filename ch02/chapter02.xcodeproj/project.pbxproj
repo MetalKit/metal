@@ -31,6 +31,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		297F43041DE8C7B500638FC8 /* Supporting files */ = {
+			isa = PBXGroup;
+			children = (
+				29E74AD61C4159D60023A39A /* Main.storyboard */,
+				29E74AD91C4159D60023A39A /* Info.plist */,
+				29E74AD01C4159D60023A39A /* AppDelegate.swift */,
+			);
+			name = "Supporting files";
+			sourceTree = "<group>";
+		};
 		29E74AC41C4159D60023A39A = {
 			isa = PBXGroup;
 			children = (
@@ -51,9 +61,7 @@
 			isa = PBXGroup;
 			children = (
 				29E74ADF1C415A020023A39A /* MetalView.swift */,
-				29E74AD61C4159D60023A39A /* Main.storyboard */,
-				29E74AD91C4159D60023A39A /* Info.plist */,
-				29E74AD01C4159D60023A39A /* AppDelegate.swift */,
+				297F43041DE8C7B500638FC8 /* Supporting files */,
 			);
 			path = chapter02;
 			sourceTree = "<group>";
@@ -85,7 +93,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0720;
-				LastUpgradeCheck = 0800;
+				LastUpgradeCheck = 0810;
 				ORGANIZATIONNAME = "Marius Horga";
 				TargetAttributes = {
 					29E74ACC1C4159D60023A39A = {
@@ -160,8 +168,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "-";
@@ -204,8 +214,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "-";
