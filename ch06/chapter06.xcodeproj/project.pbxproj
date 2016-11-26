@@ -31,6 +31,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		297F43071DEA287400638FC8 /* Supporting files */ = {
+			isa = PBXGroup;
+			children = (
+				298451331D47EF08008D81B9 /* Main.storyboard */,
+				2984513B1D47EF08008D81B9 /* Info.plist */,
+				2984512F1D47EF08008D81B9 /* AppDelegate.swift */,
+			);
+			name = "Supporting files";
+			sourceTree = "<group>";
+		};
 		298451231D47EF07008D81B9 = {
 			isa = PBXGroup;
 			children = (
@@ -51,9 +61,7 @@
 			isa = PBXGroup;
 			children = (
 				298451411D47F0BF008D81B9 /* MetalView.swift */,
-				298451331D47EF08008D81B9 /* Main.storyboard */,
-				2984513B1D47EF08008D81B9 /* Info.plist */,
-				2984512F1D47EF08008D81B9 /* AppDelegate.swift */,
+				297F43071DEA287400638FC8 /* Supporting files */,
 			);
 			path = chapter06;
 			sourceTree = "<group>";
@@ -85,7 +93,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0800;
-				LastUpgradeCheck = 0800;
+				LastUpgradeCheck = 0810;
 				ORGANIZATIONNAME = Marius;
 				TargetAttributes = {
 					2984512B1D47EF08008D81B9 = {
@@ -164,8 +172,10 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -212,8 +222,10 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
