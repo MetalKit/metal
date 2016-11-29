@@ -13,42 +13,42 @@ public class MetalView: NSObject, MTKViewDelegate {
     override public init() {
         super.init()
         device = MTLCreateSystemDefaultDevice()!
-        queue = device!.newCommandQueue()
+        queue = device!.makeCommandQueue()
         setUpTexture()
         registerShaders()
     }
   
     func setUpTexture() {
-        let path = Bundle.main.pathForResource("texture", ofType: "jpg")
+        let path = Bundle.main.path(forResource: "texture", ofType: "jpg")
         let textureLoader = MTKTextureLoader(device: device!)
         texture = try! textureLoader.newTexture(withContentsOf: URL(fileURLWithPath: path!), options: nil)
     }
   
     func registerShaders() {
-        let path = Bundle.main.pathForResource("Shaders", ofType: "metal")
+        let path = Bundle.main.path(forResource: "Shaders", ofType: "metal")
         do {
             let input = try String(contentsOfFile: path!, encoding: String.Encoding.utf8)
-            let library = try device!.newLibrary(withSource: input, options: nil)
-            let kernel = library.newFunction(withName: "compute")!
-            cps = try device!.newComputePipelineState(with: kernel)
+            let library = try device!.makeLibrary(source: input, options: nil)
+            let kernel = library.makeFunction(name: "compute")!
+            cps = try device!.makeComputePipelineState(function: kernel)
         } catch let e {
             Swift.print("\(e)")
         }
-        timerBuffer = device!.newBuffer(withLength: sizeof(Float.self), options: [])
+        timerBuffer = device!.makeBuffer(length: MemoryLayout<Float>.size, options: [])
     }
 
     func update() {
         timer += 0.01
         let bufferPointer = timerBuffer.contents()
-        memcpy(bufferPointer, &timer, sizeof(Float.self))
+        memcpy(bufferPointer, &timer, MemoryLayout<Float>.size)
     }
     
     public func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {}
     
     public func draw(in view: MTKView) {
         if let drawable = view.currentDrawable {
-            let commandBuffer = queue.commandBuffer()
-            let commandEncoder = commandBuffer.computeCommandEncoder()
+            let commandBuffer = queue.makeCommandBuffer()
+            let commandEncoder = commandBuffer.makeComputeCommandEncoder()
             commandEncoder.setComputePipelineState(cps)
             commandEncoder.setTexture(drawable.texture, at: 0)
             commandEncoder.setTexture(texture, at: 1)
