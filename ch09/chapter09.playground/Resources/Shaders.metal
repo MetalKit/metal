@@ -22,5 +22,4 @@ vertex Vertex vertex_func(constant Vertex *vertices [[buffer(0)]], constant Unif
 
 fragment half4 fragment_func(Vertex vert [[stage_in]]) {
     return half4(vert.color);
-//    return half4(0.0, 1.0, 0.0, 1.0);
 }
