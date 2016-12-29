@@ -11,7 +11,9 @@ struct Uniforms {
     float4x4 modelMatrix;
 };
 
-vertex Vertex vertex_func(constant Vertex *vertices [[buffer(0)]], constant Uniforms &uniforms [[buffer(1)]], uint vid [[vertex_id]]) {
+vertex Vertex vertex_func(constant Vertex *vertices [[buffer(0)]],
+                          constant Uniforms &uniforms [[buffer(1)]],
+                          uint vid [[vertex_id]]) {
     float4x4 matrix = uniforms.modelMatrix;
     Vertex in = vertices[vid];
     Vertex out;

@@ -10,25 +10,21 @@ import MetalKit
 
 class MetalView: MTKView {
 
-    override func drawRect(dirtyRect: NSRect) {
-        super.drawRect(dirtyRect)
-
-        render()
+    required init(coder: NSCoder) {
+        super.init(coder: coder)
+        device = MTLCreateSystemDefaultDevice()
     }
- 
-    func render() {
-        let device = MTLCreateSystemDefaultDevice()!
-        self.device = device
-        let rpd = MTLRenderPassDescriptor()
-        let bleen = MTLClearColor(red: 0, green: 0.5, blue: 0.5, alpha: 1)
-        rpd.colorAttachments[0].texture = currentDrawable!.texture
-        rpd.colorAttachments[0].clearColor = bleen
-        rpd.colorAttachments[0].loadAction = .Clear
-        let commandQueue = device.newCommandQueue()
-        let commandBuffer = commandQueue.commandBuffer()
-        let encoder = commandBuffer.renderCommandEncoderWithDescriptor(rpd)
-        encoder.endEncoding()
-        commandBuffer.presentDrawable(currentDrawable!)
-        commandBuffer.commit()
+    
+    override func draw(_ dirtyRect: NSRect) {
+        if let drawable = currentDrawable, let rpd = currentRenderPassDescriptor {
+            rpd.colorAttachments[0].texture = currentDrawable!.texture
+            rpd.colorAttachments[0].clearColor = MTLClearColor(red: 0, green: 0.5, blue: 0.5, alpha: 1)
+            rpd.colorAttachments[0].loadAction = .clear
+            let commandBuffer = device!.makeCommandQueue().makeCommandBuffer()
+            let commandEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: rpd)
+            commandEncoder.endEncoding()
+            commandBuffer.present(drawable)
+            commandBuffer.commit()
+        }
     }
 }

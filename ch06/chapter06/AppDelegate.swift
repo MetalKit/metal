@@ -2,13 +2,14 @@
 //  AppDelegate.swift
 //  chapter06
 //
-//  Created by Marius on 2/10/16.
-//  Copyright © 2016 Marius Horga. All rights reserved.
+//  Created by Marius on 7/26/16.
+//  Copyright © 2016 Marius. All rights reserved.
 //
 
-import Cocoa
+import UIKit
 
-@NSApplicationMain
-class AppDelegate: NSObject, NSApplicationDelegate {
+@UIApplicationMain
+class AppDelegate: UIResponder, UIApplicationDelegate {
 
+    var window: UIWindow?
 }

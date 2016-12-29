@@ -30,7 +30,7 @@ func scalingMatrix(scale: Float) -> matrix_float4x4 {
     return matrix_float4x4(columns:(X, Y, Z, W))
 }
 
-func rotationMatrix(angle: Float, _ axis: vector_float3) -> matrix_float4x4 {
+func rotationMatrix(angle: Float, axis: vector_float3) -> matrix_float4x4 {
     var X = vector_float4(0, 0, 0, 0)
     X.x = axis.x * axis.x + (1 - axis.x * axis.x) * cos(angle)
     X.y = axis.x * axis.y * (1 - cos(angle)) - axis.z * sin(angle)

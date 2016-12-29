@@ -1,69 +1,68 @@
 
 import MetalKit
 
-public class MetalView: MTKView {
+public class MetalView: NSObject, MTKViewDelegate {
     
-    var vertex_buffer: MTLBuffer!
-    var uniform_buffer: MTLBuffer!
-    var rps: MTLRenderPipelineState! = nil
+    public var device: MTLDevice!
+    var queue: MTLCommandQueue!
+    var vertexBuffer: MTLBuffer!
+    var uniformBuffer: MTLBuffer!
+    var rps: MTLRenderPipelineState!
     
-    required public init(coder: NSCoder) {
-        super.init(coder: coder)
-    }
-    
-    override public init(frame frameRect: CGRect, device: MTLDevice?) {
-        super.init(frame: frameRect, device: device)
+    override public init() {
+        super.init()
         createBuffers()
         registerShaders()
     }
     
-    override public func drawRect(dirtyRect: NSRect) {
-        super.drawRect(dirtyRect)
-        if let rpd = currentRenderPassDescriptor, drawable = currentDrawable {
-            rpd.colorAttachments[0].clearColor = MTLClearColorMake(0.5, 0.5, 0.5, 1.0)
-            let command_buffer = device!.newCommandQueue().commandBuffer()
-            let command_encoder = command_buffer.renderCommandEncoderWithDescriptor(rpd)
-            command_encoder.setRenderPipelineState(rps)
-            command_encoder.setVertexBuffer(vertex_buffer, offset: 0, atIndex: 0)
-            command_encoder.setVertexBuffer(uniform_buffer, offset: 0, atIndex: 1)
-            command_encoder.drawPrimitives(.Triangle, vertexStart: 0, vertexCount: 3, instanceCount: 1)
-            command_encoder.endEncoding()
-            command_buffer.presentDrawable(drawable)
-            command_buffer.commit()
-        }
-    }
-    
     func createBuffers() {
-        let vertex_data = [
-            Vertex(pos: [-1.0, -1.0, 0.0, 1.0], col: [1, 0, 0, 1]),
-            Vertex(pos: [ 1.0, -1.0, 0.0, 1.0], col: [0, 1, 0, 1]),
-            Vertex(pos: [ 0.0,  1.0, 0.0, 1.0], col: [0, 0, 1, 1])
+        device = MTLCreateSystemDefaultDevice()
+        queue = device.makeCommandQueue()
+        let vertexData = [Vertex(pos: [-1.0, -1.0, 0.0, 1.0], col: [1, 0, 0, 1]),
+                          Vertex(pos: [ 1.0, -1.0, 0.0, 1.0], col: [0, 1, 0, 1]),
+                          Vertex(pos: [ 0.0,  1.0, 0.0, 1.0], col: [0, 0, 1, 1])
         ]
-        vertex_buffer = device!.newBufferWithBytes(vertex_data, length: sizeof(Vertex) * 3, options:[])
-        uniform_buffer = device!.newBufferWithLength(sizeof(Float) * 16, options: [])
-        let bufferPointer = uniform_buffer.contents()
-        memcpy(bufferPointer, Matrix().modelMatrix(Matrix()).m, sizeof(Float) * 16)
+        vertexBuffer = device!.makeBuffer(bytes: vertexData, length: MemoryLayout<Vertex>.size * 3, options:[])
+        uniformBuffer = device!.makeBuffer(length: MemoryLayout<Float>.size * 16, options: [])
+        let bufferPointer = uniformBuffer.contents()
+        memcpy(bufferPointer, Matrix().modelMatrix(matrix: Matrix()).m, MemoryLayout<Float>.size * 16)
     }
     
     func registerShaders() {
-        let path = NSBundle.mainBundle().pathForResource("Shaders", ofType: "metal")
+        let path = Bundle.main.path(forResource: "Shaders", ofType: "metal")
         let input: String?
         let library: MTLLibrary
         let vert_func: MTLFunction
         let frag_func: MTLFunction
         do {
-            input = try String(contentsOfFile: path!, encoding: NSUTF8StringEncoding)
-            library = try device!.newLibraryWithSource(input!, options: nil)
-            //print(library.functionNames)
-            vert_func = library.newFunctionWithName("vertex_func")!
-            frag_func = library.newFunctionWithName("fragment_func")!
+            input = try String(contentsOfFile: path!, encoding: String.Encoding.utf8)
+            library = try device!.makeLibrary(source: input!, options: nil)
+            vert_func = library.makeFunction(name: "vertex_func")!
+            frag_func = library.makeFunction(name: "fragment_func")!
             let rpld = MTLRenderPipelineDescriptor()
             rpld.vertexFunction = vert_func
             rpld.fragmentFunction = frag_func
-            rpld.colorAttachments[0].pixelFormat = .BGRA8Unorm
-            rps = try device!.newRenderPipelineStateWithDescriptor(rpld)
+            rpld.colorAttachments[0].pixelFormat = .bgra8Unorm
+            rps = try device!.makeRenderPipelineState(descriptor: rpld)
         } catch let e {
             Swift.print("\(e)")
+        }
+    }
+    
+    public func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {}
+    
+    public func draw(in view: MTKView) {
+        if let rpd = view.currentRenderPassDescriptor, let drawable = view.currentDrawable {
+            rpd.colorAttachments[0].clearColor = MTLClearColorMake(0.5, 0.5, 0.5, 1.0)
+            let commandBuffer = queue.makeCommandBuffer()
+            let commandEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: rpd)
+            commandEncoder.setRenderPipelineState(rps)
+            commandEncoder.setVertexBuffer(vertexBuffer, offset: 0, at: 0)
+            commandEncoder.setVertexBuffer(uniformBuffer, offset: 0, at: 1)
+            commandEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3, instanceCount: 1)
+            commandEncoder.endEncoding()
+            commandBuffer.present(drawable)
+            commandBuffer.commit()
         }
     }
 }

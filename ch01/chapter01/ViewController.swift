@@ -6,7 +6,7 @@
 //  Copyright © 2016 Marius Horga. All rights reserved.
 //
 
-import Cocoa // contains Metal
+import Cocoa
 
 class ViewController: NSViewController {
 
@@ -15,10 +15,15 @@ class ViewController: NSViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        if let device = MTLCreateSystemDefaultDevice() {
-            label.stringValue = "Your GPU name is:\n\(device.name!)"
-        } else {
-            label.stringValue = "Your GPU does not support Metal!"
+        /* The MTLCopyAllDevices() function is only available in macOS.
+           For iOS/tvOS devices use MTLCreateSystemDefaultDevice() instead. */
+        let devices = MTLCopyAllDevices()
+        guard let _ = devices.first else {
+            fatalError("Your GPU does not support Metal!")
+        }
+        label.stringValue = "Your system has the following GPU(s):\n"
+        for device in devices {
+            label.stringValue += "\(device.name!)\n"
         }
     }
 }

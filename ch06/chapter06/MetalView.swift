@@ -1,44 +1,37 @@
 //
 //  MetalView.swift
 //  chapter06
-//
+// 
 //  Created by Marius on 2/10/16.
 //  Copyright © 2016 Marius Horga. All rights reserved.
 //
 
-import Cocoa
+import UIKit
 
-class MetalView: NSView {
+class MetalView: UIView {
     
-    override func drawRect(dirtyRect: NSRect) {
-        super.drawRect(dirtyRect)
-        render()
+    var commandQueue: MTLCommandQueue!
+    var metalLayer: CAMetalLayer!
+  
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        metalLayer = CAMetalLayer()
+        metalLayer.device = MTLCreateSystemDefaultDevice()!
+        metalLayer.frame = layer.frame
+        layer.addSublayer(metalLayer)
+        commandQueue = metalLayer.device?.makeCommandQueue()
+        redraw()
     }
     
-    override class func layerClass() -> AnyClass {
-        return CAMetalLayer.self
-    }
-    
-    var metalLayer: CAMetalLayer {
-        return layer as! CAMetalLayer
-    }
-    
-    func render() {
-        let device = MTLCreateSystemDefaultDevice()!
-        metalLayer.device = device
-        metalLayer.pixelFormat = .BGRA8Unorm
-        let drawable = metalLayer.nextDrawable()
-        let texture = drawable!.texture
-        let rpd = MTLRenderPassDescriptor()
-        rpd.colorAttachments[0].texture = texture
-        rpd.colorAttachments[0].loadAction = .Clear
-        rpd.colorAttachments[0].storeAction = .Store
-        rpd.colorAttachments[0].clearColor = MTLClearColor(red: 1, green: 0, blue: 0, alpha: 1)
-        let commandQueue = device.newCommandQueue()
-        let commandBuffer = commandQueue.commandBuffer()
-        let commandEncoder = commandBuffer.renderCommandEncoderWithDescriptor(rpd)
+    private func redraw() {
+        let drawable = metalLayer.nextDrawable()!
+        let descriptor = MTLRenderPassDescriptor()
+        descriptor.colorAttachments[0].clearColor = MTLClearColorMake(0, 0.5, 0.5, 1)
+        descriptor.colorAttachments[0].texture = drawable.texture
+        let commandBuffer = commandQueue.makeCommandBuffer()
+        let commandEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: descriptor)
         commandEncoder.endEncoding()
-        commandBuffer.presentDrawable(drawable!)
+        commandBuffer.present(drawable)
         commandBuffer.commit()
     }
 }

@@ -10,41 +10,49 @@ import MetalKit
 
 class MetalView: MTKView {
 
-    override func drawRect(dirtyRect: NSRect) {
-        super.drawRect(dirtyRect)
+    var commandQueue: MTLCommandQueue?
+    var rps: MTLRenderPipelineState?
+    var vertexData: [Float]?
+    var vertexBuffer: MTLBuffer?
+    
+    required init(coder: NSCoder) {
+        super.init(coder: coder)
         render()
     }
     
     func render() {
-        device = MTLCreateSystemDefaultDevice()
-        let vertex_data:[Float] = [-1.0, -1.0, 0.0, 1.0,
-                                    1.0, -1.0, 0.0, 1.0,
-                                    0.0,  1.0, 0.0, 1.0]
-        let data_size = vertex_data.count * sizeof(Float)
-        let vertex_buffer = device!.newBufferWithBytes(vertex_data, length: data_size, options: [])
+        device = MTLCreateSystemDefaultDevice()!
+        commandQueue = device!.makeCommandQueue()
+        vertexData = [-1.0, -1.0, 0.0, 1.0,
+                       1.0, -1.0, 0.0, 1.0,
+                       0.0,  1.0, 0.0, 1.0]
+        let dataSize = vertexData!.count * MemoryLayout<Float>.size
+        vertexBuffer = device!.makeBuffer(bytes: vertexData!, length: dataSize, options: [])
         let library = device!.newDefaultLibrary()!
-        let vertex_func = library.newFunctionWithName("vertex_func")
-        let frag_func = library.newFunctionWithName("fragment_func")
+        let vertex_func = library.makeFunction(name: "vertex_func")
+        let frag_func = library.makeFunction(name: "fragment_func")
         let rpld = MTLRenderPipelineDescriptor()
         rpld.vertexFunction = vertex_func
         rpld.fragmentFunction = frag_func
-        rpld.colorAttachments[0].pixelFormat = .BGRA8Unorm
-        var rps: MTLRenderPipelineState! = nil
+        rpld.colorAttachments[0].pixelFormat = .bgra8Unorm
         do {
-            try rps = device!.newRenderPipelineStateWithDescriptor(rpld)
+            try rps = device!.makeRenderPipelineState(descriptor: rpld)
         } catch let error {
             self.print("\(error)")
         }
-        if let rpd = currentRenderPassDescriptor, drawable = currentDrawable {
+    }
+    
+    override func draw(_ dirtyRect: NSRect) {
+        if let drawable = currentDrawable, let rpd = currentRenderPassDescriptor {
             rpd.colorAttachments[0].clearColor = MTLClearColorMake(0, 0.5, 0.5, 1.0)
-            let command_buffer = device!.newCommandQueue().commandBuffer()
-            let command_encoder = command_buffer.renderCommandEncoderWithDescriptor(rpd)
-            command_encoder.setRenderPipelineState(rps)
-            command_encoder.setVertexBuffer(vertex_buffer, offset: 0, atIndex: 0)
-            command_encoder.drawPrimitives(.Triangle, vertexStart: 0, vertexCount: 3, instanceCount: 1)
-            command_encoder.endEncoding()
-            command_buffer.presentDrawable(drawable)
-            command_buffer.commit()
+            let commandBuffer = commandQueue!.makeCommandBuffer()
+            let commandEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: rpd)
+            commandEncoder.setRenderPipelineState(rps!)
+            commandEncoder.setVertexBuffer(vertexBuffer, offset: 0, at: 0)
+            commandEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3, instanceCount: 1)
+            commandEncoder.endEncoding()
+            commandBuffer.present(drawable)
+            commandBuffer.commit()
         }
     }
 }

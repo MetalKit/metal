@@ -8,8 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		29C87D411C56E93A005F4615 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29C87D401C56E93A005F4615 /* AppDelegate.swift */; };
-		29C87D431C56E93A005F4615 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29C87D421C56E93A005F4615 /* ViewController.swift */; };
-		29C87D451C56E93A005F4615 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 29C87D441C56E93A005F4615 /* Assets.xcassets */; };
 		29C87D481C56E93B005F4615 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 29C87D461C56E93B005F4615 /* Main.storyboard */; };
 		29C87D501C56E9C2005F4615 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 29C87D4F1C56E9C2005F4615 /* Shaders.metal */; };
 		29C87D521C56E9DE005F4615 /* MetalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29C87D511C56E9DE005F4615 /* MetalView.swift */; };
@@ -18,8 +16,6 @@
 /* Begin PBXFileReference section */
 		29C87D3D1C56E93A005F4615 /* chapter04.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = chapter04.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		29C87D401C56E93A005F4615 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		29C87D421C56E93A005F4615 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		29C87D441C56E93A005F4615 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		29C87D471C56E93B005F4615 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		29C87D491C56E93B005F4615 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		29C87D4F1C56E9C2005F4615 /* Shaders.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
@@ -37,6 +33,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		293936291D96FDD500008B3A /* Supporting files */ = {
+			isa = PBXGroup;
+			children = (
+				29C87D461C56E93B005F4615 /* Main.storyboard */,
+				29C87D491C56E93B005F4615 /* Info.plist */,
+				29C87D401C56E93A005F4615 /* AppDelegate.swift */,
+			);
+			name = "Supporting files";
+			sourceTree = "<group>";
+		};
 		29C87D341C56E93A005F4615 = {
 			isa = PBXGroup;
 			children = (
@@ -58,11 +64,7 @@
 			children = (
 				29C87D511C56E9DE005F4615 /* MetalView.swift */,
 				29C87D4F1C56E9C2005F4615 /* Shaders.metal */,
-				29C87D441C56E93A005F4615 /* Assets.xcassets */,
-				29C87D421C56E93A005F4615 /* ViewController.swift */,
-				29C87D461C56E93B005F4615 /* Main.storyboard */,
-				29C87D491C56E93B005F4615 /* Info.plist */,
-				29C87D401C56E93A005F4615 /* AppDelegate.swift */,
+				293936291D96FDD500008B3A /* Supporting files */,
 			);
 			path = chapter04;
 			sourceTree = "<group>";
@@ -94,11 +96,12 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0720;
-				LastUpgradeCheck = 0720;
+				LastUpgradeCheck = 0810;
 				ORGANIZATIONNAME = "Marius Horga";
 				TargetAttributes = {
 					29C87D3C1C56E93A005F4615 = {
 						CreatedOnToolsVersion = 7.2;
+						LastSwiftMigration = 0800;
 					};
 				};
 			};
@@ -125,7 +128,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				29C87D451C56E93A005F4615 /* Assets.xcassets in Resources */,
 				29C87D481C56E93B005F4615 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -139,7 +141,6 @@
 			files = (
 				29C87D521C56E9DE005F4615 /* MetalView.swift in Sources */,
 				29C87D501C56E9C2005F4615 /* Shaders.metal in Sources */,
-				29C87D431C56E93A005F4615 /* ViewController.swift in Sources */,
 				29C87D411C56E93A005F4615 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -171,8 +172,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "-";
@@ -194,7 +197,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
@@ -215,8 +218,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "-";
@@ -232,7 +237,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
 			};
@@ -241,24 +246,25 @@
 		29C87D4D1C56E93B005F4615 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = chapter04/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.mhorga.chapter04;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
 		29C87D4E1C56E93B005F4615 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = chapter04/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.mhorga.chapter04;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};

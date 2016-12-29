@@ -33,8 +33,7 @@ float fbm(float2 uv)
 }
 
 kernel void compute(texture2d<float, access::write> output [[texture(0)]],
-                    constant float2 &mouse [[buffer(0)]],
-                    constant float &timer [[buffer(1)]],
+                    constant float &timer [[buffer(0)]],
                     uint2 gid [[thread_position_in_grid]])
 {
     int width = output.get_width();
