@@ -20,4 +20,4 @@ Repository to accompany the following blog posts:
 - [Using MetalKit part 16](http://metalkit.org/2016/07/06/using-metalkit-part-16.html)
 - [Using MetalKit part 17](http://metalkit.org/2016/09/24/using-metalkit-part-17.html)
 - [Using MetalKit part 18](http://metalkit.org/2016/10/01/using-metalkit-part-2-3-2.html)
-- [Raymarching in Metal](http://metalkit.org/2016/12/29/raymarching-in-metal.html)
+- [Raymarching in Metal](http://metalkit.org/2016/12/30/raymarching-in-metal.html)
