@@ -22,3 +22,4 @@ Repository to accompany the following blog posts:
 - [Using MetalKit part 18](http://metalkit.org/2016/10/01/using-metalkit-part-2-3-2.html)
 - [Raymarching in Metal](http://metalkit.org/2016/12/30/raymarching-in-metal.html)
 - [Shadows in Metal part 1](http://metalkit.org/2017/01/31/shadows-in-metal-part-1.html)
+- [Shadows in Metal part 2](http://metalkit.org/2017/02/28/shadows-in-metal-part-2.html)
