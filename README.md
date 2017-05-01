@@ -24,3 +24,4 @@ Repository to accompany the following blog posts:
 - [Shadows in Metal part 1](http://metalkit.org/2017/01/31/shadows-in-metal-part-1.html)
 - [Shadows in Metal part 2](http://metalkit.org/2017/02/28/shadows-in-metal-part-2.html)
 - [Ambient Occlusion in Metal](http://metalkit.org/2017/03/22/ambient-occlusion-in-metal.html)
+- [Working with memory in Metal](http://metalkit.org/2017/04/30/working-with-memory-in-metal.html)
