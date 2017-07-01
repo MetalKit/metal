@@ -26,3 +26,4 @@ Repository to accompany the following blog posts:
 - [Ambient Occlusion in Metal](http://metalkit.org/2017/03/22/ambient-occlusion-in-metal.html)
 - [Working with memory in Metal](http://metalkit.org/2017/04/30/working-with-memory-in-metal.html)
 - [Working with memory in Metal part 2](http://metalkit.org/2017/05/26/working-with-memory-in-metal-part-2.html)
+- [Introducing Metal 2](http://metalkit.org/2017/06/30/introducing-metal-2.html)
