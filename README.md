@@ -27,3 +27,4 @@ Repository to accompany the following blog posts:
 - [Working with memory in Metal](http://metalkit.org/2017/04/30/working-with-memory-in-metal.html)
 - [Working with memory in Metal part 2](http://metalkit.org/2017/05/26/working-with-memory-in-metal-part-2.html)
 - [Introducing Metal 2](http://metalkit.org/2017/06/30/introducing-metal-2.html)
+- [Using ARKit with Metal](http://metalkit.org/2017/07/29/using-arkit-with-metal.html)
