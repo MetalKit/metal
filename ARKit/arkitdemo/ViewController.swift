@@ -25,7 +25,8 @@ class ViewController: UIViewController, MTKViewDelegate, ARSessionDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        let configuration = ARWorldTrackingSessionConfiguration()
+        let configuration = ARWorldTrackingConfiguration()
+        configuration.planeDetection = .horizontal
         session.run(configuration)
     }
     
@@ -51,6 +52,10 @@ class ViewController: UIViewController, MTKViewDelegate, ARSessionDelegate {
     
     func draw(in view: MTKView) {
         renderer.update()
+    }
+    
+    func session(_ session: ARSession, didAdd anchors: [ARAnchor]) {
+        print(anchors)
     }
     
     func session(_ session: ARSession, didFailWithError error: Error) {}

@@ -98,3 +98,23 @@ fragment float4 anchorGeometryFragmentLighting(ColorInOut in [[stage_in]],
     float3 color = in.color.rgb * lightContributions;
     return float4(color, in.color.w);
 }
+
+typedef struct {
+    float3 position [[attribute(0)]];
+} DebugVertex;
+
+vertex float4 vertexDebugPlane(DebugVertex in [[ stage_in]],
+                               constant SharedUniforms &sharedUniforms [[ buffer(3) ]],
+                               constant InstanceUniforms *instanceUniforms [[ buffer(2) ]],
+                               ushort vid [[vertex_id]],
+                               ushort iid [[instance_id]]) {
+    float4 position = float4(in.position, 1.0);
+    float4x4 modelMatrix = instanceUniforms[iid].modelMatrix;
+    float4x4 modelViewMatrix = sharedUniforms.viewMatrix * modelMatrix;
+    float4 outPosition = sharedUniforms.projectionMatrix * modelViewMatrix * position;
+    return outPosition;
+}
+
+fragment float4 fragmentDebugPlane() {
+    return float4(253.0/255.0, 108.0/255.0, 158.0/255.0, 1);
+}

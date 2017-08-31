@@ -22,21 +22,28 @@ class Renderer {
     var renderDestination: RenderDestinationProvider
     var sharedUniformBuffer: MTLBuffer!
     var anchorUniformBuffer: MTLBuffer!
+    var debugUniformBuffer: MTLBuffer!
     var imagePlaneVertexBuffer: MTLBuffer!
     var capturedImagePipelineState: MTLRenderPipelineState!
     var capturedImageDepthState: MTLDepthStencilState!
     var anchorPipelineState: MTLRenderPipelineState!
     var anchorDepthState: MTLDepthStencilState!
+    var debugPipelineState: MTLRenderPipelineState!
+    var debugDepthState: MTLDepthStencilState!
     var capturedImageTextureY: MTLTexture!
     var capturedImageTextureCbCr: MTLTexture!
     var capturedImageTextureCache: CVMetalTextureCache!
     var geometryVertexDescriptor: MTLVertexDescriptor!
     var mesh: MTKMesh!
+    var debugMesh: MTKMesh!
     var uniformBufferIndex: Int = 0
     var sharedUniformBufferOffset: Int = 0
     var anchorUniformBufferOffset: Int = 0
+    var debugUniformBufferOffset: Int = 0
     var sharedUniformBufferAddress: UnsafeMutableRawPointer!
     var anchorUniformBufferAddress: UnsafeMutableRawPointer!
+    var debugUniformBufferAddress: UnsafeMutableRawPointer!
+    var debugInstanceCount: Int = 0
     var anchorInstanceCount: Int = 0
     var viewportSize: CGSize = CGSize()
     var viewportSizeDidChange: Bool = false
@@ -77,6 +84,7 @@ class Renderer {
         let anchorUniformBufferSize = alignedInstanceUniformSize * maxBuffersInFlight
         sharedUniformBuffer = device.makeBuffer(length: sharedUniformBufferSize, options: .storageModeShared)
         anchorUniformBuffer = device.makeBuffer(length: anchorUniformBufferSize, options: .storageModeShared)
+        debugUniformBuffer = device.makeBuffer(length: anchorUniformBufferSize, options: .storageModeShared)
         let imagePlaneVertexDataCount = planeVertexData.count * MemoryLayout<Float>.size
         imagePlaneVertexBuffer = device.makeBuffer(bytes: planeVertexData, length: imagePlaneVertexDataCount, options: [])
         let defaultLibrary = device.makeDefaultLibrary()!
@@ -143,6 +151,13 @@ class Renderer {
         anchorDepthStateDescriptor.depthCompareFunction = .less
         anchorDepthStateDescriptor.isDepthWriteEnabled = true
         anchorDepthState = device.makeDepthStencilState(descriptor: anchorDepthStateDescriptor)
+        let debugGeometryVertexFunction = defaultLibrary.makeFunction(name: "vertexDebugPlane")!
+        let debugGeometryFragmentFunction = defaultLibrary.makeFunction(name: "fragmentDebugPlane")!
+        anchorPipelineStateDescriptor.vertexFunction =  debugGeometryVertexFunction
+        anchorPipelineStateDescriptor.fragmentFunction = debugGeometryFragmentFunction
+        do { try debugPipelineState = device.makeRenderPipelineState(descriptor: anchorPipelineStateDescriptor)
+        } catch let error { print(error) }
+        debugDepthState = device.makeDepthStencilState(descriptor: anchorDepthStateDescriptor)
         commandQueue = device.makeCommandQueue()
     }
     
@@ -152,10 +167,14 @@ class Renderer {
         (vertexDescriptor.attributes[0] as! MDLVertexAttribute).name = MDLVertexAttributePosition
         (vertexDescriptor.attributes[1] as! MDLVertexAttribute).name = MDLVertexAttributeTextureCoordinate
         (vertexDescriptor.attributes[2] as! MDLVertexAttribute).name = MDLVertexAttributeNormal
-        let mdlMesh = MDLMesh(boxWithExtent: vector3(0.075, 0.075, 0.075), segments: vector3(1, 1, 1), inwardNormals: false, geometryType: .triangles, allocator: metalAllocator)
+        var mdlMesh = MDLMesh(boxWithExtent: vector3(0.075, 0.075, 0.075), segments: vector3(1, 1, 1), inwardNormals: false, geometryType: .triangles, allocator: metalAllocator)
         mdlMesh.vertexDescriptor = vertexDescriptor
         do { try mesh = MTKMesh(mesh: mdlMesh, device: device) }
         catch let error { print("Error creating MetalKit mesh, error \(error)") }
+        mdlMesh = MDLMesh(planeWithExtent: vector3(0.1, 0.1, 0.1), segments: vector2(1, 1), geometryType: .triangles, allocator: metalAllocator)
+        mdlMesh.vertexDescriptor = vertexDescriptor
+        do { try debugMesh = MTKMesh(mesh: mdlMesh, device: device)
+        } catch let error { print(error) }
     }
     
     func drawRectResized(size: CGSize) {
@@ -165,7 +184,7 @@ class Renderer {
     
     func update() {
         let _ = inFlightSemaphore.wait(timeout: DispatchTime.distantFuture)
-        let commandBuffer = commandQueue.makeCommandBuffer()
+        guard let commandBuffer = commandQueue.makeCommandBuffer() else { return }
         commandBuffer.addCompletedHandler{ [weak self] commandBuffer in
             if let strongSelf = self { strongSelf.inFlightSemaphore.signal() }
             return
@@ -174,9 +193,10 @@ class Renderer {
         updateGameState()
         guard let passDescriptor = renderDestination.currentRenderPassDescriptor,
             let drawable = renderDestination.currentDrawable else { return }
-        let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: passDescriptor)
+        guard let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: passDescriptor) else { return }
         drawCapturedImage(renderEncoder: renderEncoder)
         drawAnchorGeometry(renderEncoder: renderEncoder)
+        drawDebugGeometry(renderEncoder: renderEncoder)
         renderEncoder.endEncoding()
         commandBuffer.present(drawable)
         commandBuffer.commit()
@@ -188,6 +208,8 @@ class Renderer {
         anchorUniformBufferOffset = alignedInstanceUniformSize * uniformBufferIndex
         sharedUniformBufferAddress = sharedUniformBuffer.contents().advanced(by: sharedUniformBufferOffset)
         anchorUniformBufferAddress = anchorUniformBuffer.contents().advanced(by: anchorUniformBufferOffset)
+        debugUniformBufferOffset = alignedInstanceUniformSize * uniformBufferIndex
+        debugUniformBufferAddress = debugUniformBuffer.contents().advanced(by: debugUniformBufferOffset)
     }
     
     func updateGameState() {
@@ -204,7 +226,7 @@ class Renderer {
     func updateSharedUniforms(frame: ARFrame) {
         let uniforms = sharedUniformBufferAddress.assumingMemoryBound(to: SharedUniforms.self)
         uniforms.pointee.viewMatrix = simd_inverse(frame.camera.transform)
-        uniforms.pointee.projectionMatrix = frame.camera.projectionMatrix(withViewportSize: viewportSize, orientation: .landscapeRight, zNear: 0.001, zFar: 1000)
+        uniforms.pointee.projectionMatrix = frame.camera.projectionMatrix(for: .landscapeRight, viewportSize: viewportSize, zNear: 0.001, zFar: 1000)
         var ambientIntensity: Float = 1.0
         if let lightEstimate = frame.lightEstimate {
             ambientIntensity = Float(lightEstimate.ambientIntensity) / 1000.0
@@ -225,14 +247,41 @@ class Renderer {
         if anchorInstanceCount == maxAnchorInstanceCount {
             anchorOffset = max(frame.anchors.count - maxAnchorInstanceCount, 0)
         }
+        let count = frame.anchors.filter{ $0.isKind(of: ARPlaneAnchor.self) }.count
+        debugInstanceCount = min(count, maxAnchorInstanceCount - (anchorInstanceCount - count))
         for index in 0..<anchorInstanceCount {
             let anchor = frame.anchors[index + anchorOffset]
             var coordinateSpaceTransform = matrix_identity_float4x4
             coordinateSpaceTransform.columns.2.z = -1.0 // flip Z axis to convert to left handed
-            let modelMatrix = simd_mul(anchor.transform, coordinateSpaceTransform)
-            let anchorUniforms = anchorUniformBufferAddress.assumingMemoryBound(to: InstanceUniforms.self).advanced(by: index)
-            anchorUniforms.pointee.modelMatrix = modelMatrix
+            if anchor.isKind(of: ARPlaneAnchor.self) {
+                let transform = anchor.transform * rotationMatrix(rotation: float3(0, 0, Float.pi/2))
+                let modelMatrix = simd_mul(transform, coordinateSpaceTransform)
+                let debugUniforms = debugUniformBufferAddress.assumingMemoryBound(to: InstanceUniforms.self).advanced(by: index)
+                debugUniforms.pointee.modelMatrix = modelMatrix
+            } else {
+                let modelMatrix = simd_mul(anchor.transform, coordinateSpaceTransform)
+                let anchorUniforms = anchorUniformBufferAddress.assumingMemoryBound(to: InstanceUniforms.self).advanced(by: index)
+                anchorUniforms.pointee.modelMatrix = modelMatrix
+            }
         }
+    }
+    
+    func rotationMatrix(rotation: float3) -> float4x4 {
+        var matrix: float4x4 = matrix_identity_float4x4
+        let x = rotation.x
+        let y = rotation.y
+        let z = rotation.z
+        matrix.columns.0.x = cos(y) * cos(z)
+        matrix.columns.0.y = cos(z) * sin(x) * sin(y) - cos(x) * sin(z)
+        matrix.columns.0.z = cos(x) * cos(z) * sin(y) + sin(x) * sin(z)
+        matrix.columns.1.x = cos(y) * sin(z)
+        matrix.columns.1.y = cos(x) * cos(z) + sin(x) * sin(y) * sin(z)
+        matrix.columns.1.z = -cos(z) * sin(x) + cos(x) * sin(y) * sin(z)
+        matrix.columns.2.x = -sin(y)
+        matrix.columns.2.y = cos(y) * sin(x)
+        matrix.columns.2.z = cos(x) * cos(y)
+        matrix.columns.3.w = 1.0
+        return matrix
     }
     
     func updateCapturedImageTextures(frame: ARFrame) {
@@ -253,7 +302,7 @@ class Renderer {
     }
     
     func updateImagePlane(frame: ARFrame) {
-        let displayToCameraTransform = frame.displayTransform(withViewportSize: viewportSize, orientation: .landscapeRight).inverted()
+        let displayToCameraTransform = frame.displayTransform(for: .landscapeRight, viewportSize: viewportSize).inverted()
         let vertexData = imagePlaneVertexBuffer.contents().assumingMemoryBound(to: Float.self)
         for index in 0...3 {
             let textureCoordIndex = 4 * index + 2
@@ -278,7 +327,7 @@ class Renderer {
     }
     
     func drawAnchorGeometry(renderEncoder: MTLRenderCommandEncoder) {
-        guard anchorInstanceCount > 0 else { return }
+        guard anchorInstanceCount - debugInstanceCount > 0 else { return }
         renderEncoder.pushDebugGroup("DrawAnchors")
         renderEncoder.setCullMode(.back)
         renderEncoder.setRenderPipelineState(anchorPipelineState)
@@ -292,6 +341,25 @@ class Renderer {
         }
         for submesh in mesh.submeshes {
             renderEncoder.drawIndexedPrimitives(type: submesh.primitiveType, indexCount: submesh.indexCount, indexType: submesh.indexType, indexBuffer: submesh.indexBuffer.buffer, indexBufferOffset: submesh.indexBuffer.offset, instanceCount: anchorInstanceCount)
+        }
+        renderEncoder.popDebugGroup()
+    }
+    
+    func drawDebugGeometry(renderEncoder: MTLRenderCommandEncoder) {
+        guard debugInstanceCount > 0 else { return }
+        renderEncoder.pushDebugGroup("DrawDebugPlanes")
+        renderEncoder.setCullMode(.back)
+        renderEncoder.setRenderPipelineState(debugPipelineState)
+        renderEncoder.setDepthStencilState(debugDepthState)
+        renderEncoder.setVertexBuffer(debugUniformBuffer, offset: debugUniformBufferOffset, index: 2)
+        renderEncoder.setVertexBuffer(sharedUniformBuffer, offset: sharedUniformBufferOffset, index: 3)
+        renderEncoder.setFragmentBuffer(sharedUniformBuffer, offset: sharedUniformBufferOffset, index: 3)
+        for bufferIndex in 0..<debugMesh.vertexBuffers.count {
+            let vertexBuffer = debugMesh.vertexBuffers[bufferIndex]
+            renderEncoder.setVertexBuffer(vertexBuffer.buffer, offset: vertexBuffer.offset, index:bufferIndex)
+        }
+        for submesh in debugMesh.submeshes {
+            renderEncoder.drawIndexedPrimitives(type: submesh.primitiveType, indexCount: submesh.indexCount, indexType: submesh.indexType, indexBuffer: submesh.indexBuffer.buffer, indexBufferOffset: submesh.indexBuffer.offset, instanceCount: debugInstanceCount)
         }
         renderEncoder.popDebugGroup()
     }
