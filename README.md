@@ -29,3 +29,4 @@ Repository to accompany the following blog posts:
 - [Introducing Metal 2](http://metalkit.org/2017/06/30/introducing-metal-2.html)
 - [Using ARKit with Metal](http://metalkit.org/2017/07/29/using-arkit-with-metal.html)
 - [Using ARKit with Metal part 2](http://metalkit.org/2017/08/31/using-arkit-with-metal-part-2.html)
+- [Working with Particles in Metal](http://metalkit.org/2017/09/30/working-with-particles-in-metal.html)
