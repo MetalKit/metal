@@ -29,9 +29,9 @@ class MetalView: UIView {
         descriptor.colorAttachments[0].clearColor = MTLClearColorMake(0, 0.5, 0.5, 1)
         descriptor.colorAttachments[0].texture = drawable.texture
         let commandBuffer = commandQueue.makeCommandBuffer()
-        let commandEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: descriptor)
-        commandEncoder.endEncoding()
-        commandBuffer.present(drawable)
-        commandBuffer.commit()
+        let commandEncoder = commandBuffer?.makeRenderCommandEncoder(descriptor: descriptor)
+        commandEncoder?.endEncoding()
+        commandBuffer?.present(drawable)
+        commandBuffer?.commit()
     }
 }

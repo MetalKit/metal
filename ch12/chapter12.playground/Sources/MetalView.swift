@@ -28,13 +28,13 @@ public class MetalView: MTKView, NSWindowDelegate {
     
     override public func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
-        if let drawable = currentDrawable {
-            let commandBuffer = queue.makeCommandBuffer()
-            let commandEncoder = commandBuffer.makeComputeCommandEncoder()
+        if let drawable = currentDrawable,
+           let commandBuffer = queue.makeCommandBuffer(),
+           let commandEncoder = commandBuffer.makeComputeCommandEncoder() {
             commandEncoder.setComputePipelineState(cps)
-            commandEncoder.setTexture(drawable.texture, at: 0)
-            commandEncoder.setBuffer(mouseBuffer, offset: 0, at: 2)
-            commandEncoder.setBuffer(timerBuffer, offset: 0, at: 1)
+            commandEncoder.setTexture(drawable.texture, index: 0)
+            commandEncoder.setBuffer(mouseBuffer, offset: 0, index: 2)
+            commandEncoder.setBuffer(timerBuffer, offset: 0, index: 1)
             update()
             let threadGroupCount = MTLSizeMake(8, 8, 1)
             let threadGroups = MTLSizeMake(drawable.texture.width / threadGroupCount.width, drawable.texture.height / threadGroupCount.height, 1)

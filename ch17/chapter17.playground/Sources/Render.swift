@@ -4,11 +4,11 @@ import MetalKit
 public class Render : NSObject, MTKViewDelegate {
   
     weak var view: MTKView!
-    let commandQueue: MTLCommandQueue
-    let renderPipelineState: MTLRenderPipelineState
-    let device: MTLDevice
-    var vertexBuffer: MTLBuffer
-    var indexBuffer: MTLBuffer
+    let commandQueue: MTLCommandQueue!
+    let renderPipelineState: MTLRenderPipelineState!
+    let device: MTLDevice!
+    var vertexBuffer: MTLBuffer!
+    var indexBuffer: MTLBuffer!
   
     struct Vertex {
         var position: float4
@@ -19,9 +19,9 @@ public class Render : NSObject, MTKViewDelegate {
         view = mtkView
         view.clearColor = MTLClearColorMake(0.5, 0.5, 0.5, 1)
         view.colorPixelFormat = .bgra8Unorm
-        device = MTLCreateSystemDefaultDevice()!
+        device = MTLCreateSystemDefaultDevice()
         commandQueue = device.makeCommandQueue()
-        renderPipelineState = try! Render.buildRenderPipelineWithDevice(device: device, view: mtkView)
+        try! renderPipelineState = Render.buildRenderPipelineWithDevice(device: device, view: mtkView)
         
         var vertices = [Vertex]()
         vertices.append(Vertex(position: float4(-0.5, -0.5, 0, 1), color: float4(1, 0, 0, 1)))
@@ -42,9 +42,9 @@ public class Render : NSObject, MTKViewDelegate {
     }
   
     class func buildRenderPipelineWithDevice(device: MTLDevice, view: MTKView) throws -> MTLRenderPipelineState {
-        let path = Bundle.main.path(forResource: "Shaders", ofType: "metal")!
-        let input = try! String(contentsOfFile: path, encoding: String.Encoding.utf8)
-        let library = try! device.makeLibrary(source: input, options: nil)
+        guard let path = Bundle.main.path(forResource: "Shaders", ofType: "metal") else { fatalError() }
+        let input = try String(contentsOfFile: path, encoding: String.Encoding.utf8)
+        let library = try device.makeLibrary(source: input, options: nil)
         let vertexFunction = library.makeFunction(name: "vertex_transform")
         let fragmentFunction = library.makeFunction(name: "fragment_lighting")
         let pipelineDescriptor = MTLRenderPipelineDescriptor()
@@ -58,16 +58,17 @@ public class Render : NSObject, MTKViewDelegate {
     public func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {}
   
     public func draw(in view: MTKView) {
-        let commandBuffer = commandQueue.makeCommandBuffer()
-        let renderPassDescriptor = view.currentRenderPassDescriptor!
-        let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor)
-        renderEncoder.setVertexBuffer(vertexBuffer, offset:0, at:0)
-        renderEncoder.setRenderPipelineState(renderPipelineState)
-        renderEncoder.setTriangleFillMode(.lines)
-        renderEncoder.drawIndexedPrimitives(type: .triangle, indexCount: 3, indexType: .uint16, indexBuffer: indexBuffer,indexBufferOffset: 0)
-        renderEncoder.endEncoding()
-        commandBuffer.present(view.currentDrawable!)
-        commandBuffer.commit()
+        if let commandBuffer = commandQueue.makeCommandBuffer(),
+           let renderPassDescriptor = view.currentRenderPassDescriptor,
+           let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor) {
+            renderEncoder.setVertexBuffer(vertexBuffer, offset:0, index:0)
+            renderEncoder.setRenderPipelineState(renderPipelineState)
+            renderEncoder.setTriangleFillMode(.lines)
+            renderEncoder.drawIndexedPrimitives(type: .triangle, indexCount: 3, indexType: .uint16, indexBuffer: indexBuffer,indexBufferOffset: 0)
+            renderEncoder.endEncoding()
+            commandBuffer.present(view.currentDrawable!)
+            commandBuffer.commit()
+        }
     }
 }
  

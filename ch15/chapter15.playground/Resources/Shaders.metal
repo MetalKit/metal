@@ -11,15 +11,15 @@ kernel void compute(texture2d<float, access::write> output [[texture(0)]],
   int width = input.get_width();
   int height = input.get_height();
   float2 uv = float2(gid) / float2(width, height);
-  uv = uv * 2.0 - 1.0;
-  uv = uv * 2;
+  uv = uv * 2.0 - 0.5;
+  uv = uv * 4;
   float radius = 1;
   float distance = length(uv) - radius;
   constexpr sampler textureSampler(coord::normalized,
                                    address::repeat,
                                    min_filter::linear,
                                    mag_filter::linear,
-                                   mip_filter::linear );
+                                   mip_filter::linear);
   float3 norm = float3(uv, sqrt(1.0 - dot(uv, uv)));
   float pi = 3.14;
   float s = atan2( norm.z, norm.x ) / (2 * pi);

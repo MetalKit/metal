@@ -21,7 +21,7 @@ public class MetalView: NSObject, MTKViewDelegate {
     func setUpTexture() {
         let path = Bundle.main.path(forResource: "texture", ofType: "jpg")
         let textureLoader = MTKTextureLoader(device: device!)
-        texture = try! textureLoader.newTexture(withContentsOf: URL(fileURLWithPath: path!), options: nil)
+        texture = try! textureLoader.newTexture(URL: URL(fileURLWithPath: path!), options: nil)
     }
   
     func registerShaders() {
@@ -46,13 +46,13 @@ public class MetalView: NSObject, MTKViewDelegate {
     public func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {}
     
     public func draw(in view: MTKView) {
-        if let drawable = view.currentDrawable {
-            let commandBuffer = queue.makeCommandBuffer()
-            let commandEncoder = commandBuffer.makeComputeCommandEncoder()
+        if let drawable = view.currentDrawable,
+           let commandBuffer = queue.makeCommandBuffer(),
+           let commandEncoder = commandBuffer.makeComputeCommandEncoder() {
             commandEncoder.setComputePipelineState(cps)
-            commandEncoder.setTexture(drawable.texture, at: 0)
-            commandEncoder.setTexture(texture, at: 1)
-            commandEncoder.setBuffer(timerBuffer, offset: 0, at: 0)
+            commandEncoder.setTexture(drawable.texture, index: 0)
+            commandEncoder.setTexture(texture, index: 1)
+            commandEncoder.setBuffer(timerBuffer, offset: 0, index: 0)
             update()
             let threadGroupCount = MTLSizeMake(8, 8, 1)
             let threadGroups = MTLSizeMake(drawable.texture.width / threadGroupCount.width, drawable.texture.height / threadGroupCount.height, 1)

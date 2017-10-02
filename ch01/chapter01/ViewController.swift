@@ -23,7 +23,7 @@ class ViewController: NSViewController {
         }
         label.stringValue = "Your system has the following GPU(s):\n"
         for device in devices {
-            label.stringValue += "\(device.name!)\n"
+            label.stringValue += "\(device.name)\n"
         }
     }
 }

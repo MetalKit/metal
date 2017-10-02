@@ -52,13 +52,14 @@ public class MetalView: NSObject, MTKViewDelegate {
     public func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {}
     
     public func draw(in view: MTKView) {
-        if let rpd = view.currentRenderPassDescriptor, let drawable = view.currentDrawable {
+        if let rpd = view.currentRenderPassDescriptor,
+           let drawable = view.currentDrawable,
+           let commandBuffer = queue.makeCommandBuffer(),
+           let commandEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: rpd) {
             rpd.colorAttachments[0].clearColor = MTLClearColorMake(0.5, 0.5, 0.5, 1.0)
-            let commandBuffer = queue.makeCommandBuffer()
-            let commandEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: rpd)
             commandEncoder.setRenderPipelineState(rps)
-            commandEncoder.setVertexBuffer(vertexBuffer, offset: 0, at: 0)
-            commandEncoder.setVertexBuffer(uniformBuffer, offset: 0, at: 1)
+            commandEncoder.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
+            commandEncoder.setVertexBuffer(uniformBuffer, offset: 0, index: 1)
             commandEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3, instanceCount: 1)
             commandEncoder.endEncoding()
             commandBuffer.present(drawable)

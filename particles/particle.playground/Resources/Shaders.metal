@@ -27,4 +27,4 @@ kernel void compute(texture2d<float, access::write> output [[texture(0)]],
     float4 color = float4(1, 0.7, 0, 1);
     if (distance > 0) { color = float4(0.2, 0.5, 0.7, 1); }
     output.write(float4(color), gid);
-}
+} 

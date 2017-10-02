@@ -35,7 +35,7 @@ class MetalView: MTKView {
     }
     
     func registerShaders() {
-        let library = device!.newDefaultLibrary()!
+        let library = device!.makeDefaultLibrary()!
         let vertex_func = library.makeFunction(name: "vertex_func")
         let frag_func = library.makeFunction(name: "fragment_func")
         let rpld = MTLRenderPipelineDescriptor()
@@ -49,13 +49,13 @@ class MetalView: MTKView {
         if let drawable = currentDrawable, let rpd = currentRenderPassDescriptor {
             rpd.colorAttachments[0].clearColor = MTLClearColorMake(0.5, 0.5, 0.5, 1.0)
             let commandBuffer = commandQueue!.makeCommandBuffer()
-            let commandEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: rpd)
-            commandEncoder.setRenderPipelineState(rps!)
-            commandEncoder.setVertexBuffer(vertexBuffer, offset: 0, at: 0)
-            commandEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3, instanceCount: 1)
-            commandEncoder.endEncoding()
-            commandBuffer.present(drawable)
-            commandBuffer.commit()
+            let commandEncoder = commandBuffer?.makeRenderCommandEncoder(descriptor: rpd)
+            commandEncoder?.setRenderPipelineState(rps!)
+            commandEncoder?.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
+            commandEncoder?.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3, instanceCount: 1)
+            commandEncoder?.endEncoding()
+            commandBuffer?.present(drawable)
+            commandBuffer?.commit()
         }
     }
 }

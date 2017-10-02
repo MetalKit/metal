@@ -1,14 +1,14 @@
 
 import MetalKit
 
-let device = MTLCreateSystemDefaultDevice()!
-let queue = device.makeCommandQueue()
+guard let device = MTLCreateSystemDefaultDevice() else { fatalError() }
+guard let queue = device.makeCommandQueue() else { fatalError() }
 let count = 1500
 var myVector = [Float](repeating: 0, count: count)
 var length = count * MemoryLayout<Float>.size
-//print(length)
-var outBuffer = device.makeBuffer(bytes: myVector, length: length, options: [])
-for (index, value) in myVector.enumerated() { myVector[index] = Float(index) }
+print(length)
+guard let outBuffer = device.makeBuffer(bytes: myVector, length: length, options: []) else { fatalError() }
+for (index, _) in myVector.enumerated() { myVector[index] = Float(index) }
 var inBuffer = device.makeBuffer(bytes: myVector, length: length, options: [])
 
 let path = Bundle.main.path(forResource: "memory", ofType: "metal")
@@ -17,11 +17,11 @@ let library = try device.makeLibrary(source: input, options: nil)
 let function = library.makeFunction(name: "compute")!
 let computePipelineState = try! device.makeComputePipelineState(function: function)
 
-let commandBuffer = queue.makeCommandBuffer()
-let encoder = commandBuffer.makeComputeCommandEncoder()
+guard let commandBuffer = queue.makeCommandBuffer() else { fatalError() }
+guard let encoder = commandBuffer.makeComputeCommandEncoder() else { fatalError() }
 encoder.setComputePipelineState(computePipelineState)
-encoder.setBuffer(inBuffer, offset: 0, at: 0)
-encoder.setBuffer(outBuffer, offset: 0, at: 1)
+encoder.setBuffer(inBuffer, offset: 0, index: 0)
+encoder.setBuffer(outBuffer, offset: 0, index: 1)
 let size = MTLSize(width: count, height: 1, depth: 1)
 encoder.dispatchThreadgroups(size, threadsPerThreadgroup: size)
 encoder.endEncoding()

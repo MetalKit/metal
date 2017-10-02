@@ -32,12 +32,12 @@ public class MetalView: NSObject, MTKViewDelegate {
     public func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {}
     
     public func draw(in view: MTKView) {
-        if let drawable = view.currentDrawable {
-            let commandBuffer = queue.makeCommandBuffer()
-            let commandEncoder = commandBuffer.makeComputeCommandEncoder()
+        if let drawable = view.currentDrawable,
+           let commandBuffer = queue.makeCommandBuffer(),
+           let commandEncoder = commandBuffer.makeComputeCommandEncoder() {
             commandEncoder.setComputePipelineState(cps)
-            commandEncoder.setTexture(drawable.texture, at: 0)
-            commandEncoder.setBuffer(timeBuffer, offset: 0, at: 0)
+            commandEncoder.setTexture(drawable.texture, index: 0)
+            commandEncoder.setBuffer(timeBuffer, offset: 0, index: 0)
             time += 0.01
             let bufferPointer = timeBuffer.contents()
             memcpy(bufferPointer, &time, MemoryLayout<Float>.size)

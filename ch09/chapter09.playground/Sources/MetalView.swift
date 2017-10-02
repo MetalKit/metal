@@ -65,9 +65,9 @@ public class MetalView: NSObject, MTKViewDelegate {
     
     func update() {
         let scaled = scalingMatrix(scale: 0.5)
-        rotation += 1 / 100 * Float(M_PI) / 4
+        rotation += 1 / 100 * Float.pi / 4
         let rotatedY = rotationMatrix(angle: rotation, axis: float3(0, 1, 0))
-        let rotatedX = rotationMatrix(angle: Float(M_PI) / 4, axis: float3(1, 0, 0))
+        let rotatedX = rotationMatrix(angle: Float.pi / 4, axis: float3(1, 0, 0))
         let modelMatrix = matrix_multiply(matrix_multiply(rotatedX, rotatedY), scaled)
         let cameraPosition = vector_float3(0, 0, -3)
         let viewMatrix = translationMatrix(position: cameraPosition)
@@ -82,15 +82,16 @@ public class MetalView: NSObject, MTKViewDelegate {
     
     public func draw(in view: MTKView) {
         update()
-        if let rpd = view.currentRenderPassDescriptor, let drawable = view.currentDrawable {
+        if let rpd = view.currentRenderPassDescriptor,
+            let drawable = view.currentDrawable,
+            let commandBuffer = queue.makeCommandBuffer(),
+            let commandEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: rpd) {
             rpd.colorAttachments[0].clearColor = MTLClearColorMake(0.5, 0.5, 0.5, 1.0)
-            let commandBuffer = queue.makeCommandBuffer()
-            let commandEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: rpd)
             commandEncoder.setRenderPipelineState(rps)
             commandEncoder.setFrontFacing(.counterClockwise)
             commandEncoder.setCullMode(.back)
-            commandEncoder.setVertexBuffer(vertexBuffer, offset: 0, at: 0)
-            commandEncoder.setVertexBuffer(uniformBuffer, offset: 0, at: 1)
+            commandEncoder.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
+            commandEncoder.setVertexBuffer(uniformBuffer, offset: 0, index: 1)
             commandEncoder.drawIndexedPrimitives(type: .triangle, indexCount: indexBuffer.length / MemoryLayout<UInt16>.size, indexType: MTLIndexType.uint16, indexBuffer: indexBuffer, indexBufferOffset: 0)
             commandEncoder.endEncoding()
             commandBuffer.present(drawable)
