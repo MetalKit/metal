@@ -14,10 +14,12 @@ float distanceToParticle(float2 point, Particle p) {
 kernel void compute(texture2d<float, access::write> output [[texture(0)]],
                     constant float &time [[buffer(0)]],
                     uint2 gid [[thread_position_in_grid]]) {
-    int width = output.get_width();
-    int height = output.get_height();
+    float width = output.get_width();
+    float height = output.get_height();
     float2 uv = float2(gid) / float2(width, height);
-    float2 center = float2(0.5, time);
+    float aspect = width / height;
+    uv.x *= aspect;
+    float2 center = float2(aspect / 2, time);
     float radius = 0.05;
     float stop = 1 - radius;
     if (time >= stop) { center.y = stop; }
