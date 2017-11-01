@@ -26,18 +26,15 @@ public class MetalViewDelegate: NSObject, MTKViewDelegate {
         particles = [Particle](repeatElement(Particle(), count: 1000))
         particlesBuffer = device.makeBuffer(length: particles.count * MemoryLayout<Particle>.stride, options: [])!
         var pointer = particlesBuffer.contents().bindMemory(to: Particle.self, capacity: particles.count)
-        for _ in particles.enumerated() {
+        for _ in particles {
             pointer.pointee.initialMatrix = translate(by: [Float(drand48()) / 10, Float(drand48()) * 10, 0])
             pointer.pointee.color = float4(0.2, 0.6, 0.9, 1)
             pointer = pointer.advanced(by: 1)
         }
         let allocator = MTKMeshBufferAllocator(device: device)
         let sphere = MDLMesh(sphereWithExtent: [0.01, 0.01, 0.01], segments: [8, 8], inwardNormals: false, geometryType: .triangles, allocator: allocator)
-        do {
-            model = try MTKMesh(mesh: sphere, device: device)
-        } catch let e {
-            Swift.print("\(e)")
-        }
+        do { model = try MTKMesh(mesh: sphere, device: device) } 
+        catch let e { print(e) }
     }
     
     func initializeMetal() {
