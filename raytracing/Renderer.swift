@@ -99,21 +99,23 @@ class Renderer: NSObject {
   
   func createScene() {
     // light source
-    var transform = translate(tx: 0, ty: 1, tz: 0) * scale(sx: 0.5, sy: 1.98, sz: 0.5)
+    var transform = translate(tx: 0, ty: 1, tz: 0.3) * scale(sx: 0.5, sy: 1.98, sz: 0.5)
     createCube(faceMask: .positiveY, color: float3(1), transform: transform, inwardNormals: true, triangleMask: TRIANGLE_MASK_LIGHT)
-    // top, bottom and back walls
+    // top wall
     transform = translate(tx: 0, ty: 1, tz: 0) * scale(sx: 2, sy: 2, sz: 2)
-    createCube(faceMask: [.negativeY, .positiveY, .negativeZ], color: float3(0.725, 0.71, 0.68), transform: transform, inwardNormals: true, triangleMask: TRIANGLE_MASK_GEOMETRY)
+    createCube(faceMask: .positiveY, color: float3(0.02, 0.4, 0.02), transform: transform, inwardNormals: true, triangleMask: TRIANGLE_MASK_GEOMETRY)
+    // bottom and back walls
+    createCube(faceMask: [.negativeY, .negativeZ], color: float3(1.0), transform: transform, inwardNormals: true, triangleMask: TRIANGLE_MASK_GEOMETRY)
     // left wall
-    createCube(faceMask: .negativeX, color: float3(0.63, 0.065, 0.05), transform: transform, inwardNormals: true, triangleMask: TRIANGLE_MASK_GEOMETRY)
+    createCube(faceMask: .negativeX, color: float3(1.0, 0.02, 0.02), transform: transform, inwardNormals: true, triangleMask: TRIANGLE_MASK_GEOMETRY)
     // right wall
-    createCube(faceMask: .positiveX, color: float3(0.14, 0.45, 0.091), transform: transform, inwardNormals: true, triangleMask: TRIANGLE_MASK_GEOMETRY)
+    createCube(faceMask: [.positiveX], color: float3(0.02, 0.02, 0.2), transform: transform, inwardNormals: true, triangleMask: TRIANGLE_MASK_GEOMETRY)
     // short box
-    transform = translate(tx: 0.3275, ty: 0.3, tz: 0.3725) * rotate(radians: -0.3, axis: float3(0.0, 1.0, 0.0)) * scale(sx: 0.6, sy: 0.6, sz: 0.6)
-    createCube(faceMask: .all, color: float3(0.725, 0.71, 0.68), transform: transform, inwardNormals: false, triangleMask: TRIANGLE_MASK_GEOMETRY)
+    transform = translate(tx: 0.35, ty: 0.3, tz: 0.3725) * rotate(radians: -0.3, axis: float3(0.0, 1.0, 0.0)) * scale(sx: 0.6, sy: 0.6, sz: 0.6)
+    createCube(faceMask: .all, color: float3(1.0, 1.0, 0.3), transform: transform, inwardNormals: false, triangleMask: TRIANGLE_MASK_GEOMETRY)
     // tall box
-    transform = translate(tx: -0.335, ty: 0.6, tz: -0.29) * rotate(radians: 0.3, axis: float3(0.0, 1.0, 0.0)) * scale(sx: 0.6, sy: 1.2, sz: 0.6)
-    createCube(faceMask: .all, color: float3(0.725, 0.71, 0.68), transform: transform, inwardNormals: false, triangleMask: TRIANGLE_MASK_GEOMETRY)
+    transform = translate(tx: -0.4, ty: 0.6, tz: -0.29) * rotate(radians: 0.3, axis: float3(0.0, 1.0, 0.0)) * scale(sx: 0.6, sy: 1.2, sz: 0.6)
+    createCube(faceMask: .all, color: float3(1.0, 1.0, 0.3), transform: transform, inwardNormals: false, triangleMask: TRIANGLE_MASK_GEOMETRY)
   }
   
   func createBuffers() {
@@ -157,7 +159,7 @@ class Renderer: NSObject {
     uniforms.pointee.light.forward = float3(0.0, -1.0, 0.0)
     uniforms.pointee.light.right = float3(0.25, 0.0, 0.0)
     uniforms.pointee.light.up = float3(0.0, 0.0, 0.25)
-    uniforms.pointee.light.color = float3(4.0, 4.0, 4.0)
+    uniforms.pointee.light.color = float3(12.0)
     
     let fieldOfView = 45.0 * (Float.pi / 180.0)
     let aspectRatio = Float(size.width) / Float(size.height)
