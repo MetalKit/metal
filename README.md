@@ -34,3 +34,4 @@ Repository to accompany the following blog posts:
 - [Working with Particles in Metal part 2](http://metalkit.org/2017/10/31/working-with-particles-in-metal-part-2.html)
 - [Working with Particles in Metal part 3](http://metalkit.org/2017/11/30/working-with-particles-in-metal-part-3.html)
 - [Metal By Tutorials book!](http://metalkit.org/2018/05/29/metal-by-tutorials-book.html)
+- [Raytracing with Metal](http://metalkit.org/2018/07/14/raytracing-with-metal.html)
