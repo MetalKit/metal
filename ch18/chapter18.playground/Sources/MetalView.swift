@@ -19,6 +19,7 @@ public class MetalView: NSObject, MTKViewDelegate {
         
         super.init()
         view.delegate = self
+        view.framebufferOnly = false
         view.device = device
     }
     
