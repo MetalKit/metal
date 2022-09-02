@@ -29,7 +29,7 @@ public class MetalView: NSObject, MTKViewDelegate {
     }
     
     func registerShaders() {
-        let path = Bundle.main.path(forResource: "Shaders", ofType: "metal")
+        let path = Bundle.main.path(forResource: "Shaders", ofType: "txt")
         let input: String?
         let library: MTLLibrary
         let vert_func: MTLFunction

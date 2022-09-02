@@ -17,7 +17,7 @@ public class MetalView: NSObject, MTKViewDelegate {
     }
   
     func registerShaders() {
-        guard let path = Bundle.main.path(forResource: "Shaders", ofType: "metal") else { return }
+        guard let path = Bundle.main.path(forResource: "Shaders", ofType: "txt") else { return }
         do {
             let input = try String(contentsOfFile: path, encoding: String.Encoding.utf8)
             let library = try device.makeLibrary(source: input, options: nil)

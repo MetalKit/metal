@@ -43,7 +43,7 @@ public class MetalViewDelegate: NSObject, MTKViewDelegate {
         initializeBuffers()
         let library: MTLLibrary
         do {
-            let path = Bundle.main.path(forResource: "Shaders", ofType: "metal")
+            let path = Bundle.main.path(forResource: "Shaders", ofType: "txt")
             let source = try String(contentsOfFile: path!, encoding: .utf8)
             library = try device.makeLibrary(source: source, options: nil)
             let descriptor = MTLRenderPipelineDescriptor()

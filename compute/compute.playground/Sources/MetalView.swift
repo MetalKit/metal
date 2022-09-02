@@ -18,7 +18,7 @@ public class Renderer: NSObject, MTKViewDelegate {
         queue = device.makeCommandQueue()
         let textureLoader = MTKTextureLoader(device: device)
         let url = Bundle.main.url(forResource: "nature", withExtension: "jpg")!
-        guard let file = Bundle.main.path(forResource: "Shaders", ofType: "metal") else { return }
+        guard let file = Bundle.main.path(forResource: "Shaders", ofType: "txt") else { return }
         do {
             let source = try String(contentsOfFile: file, encoding: String.Encoding.utf8)
             let library = try device.makeLibrary(source: source, options: nil)

@@ -42,7 +42,7 @@ public class Render : NSObject, MTKViewDelegate {
     }
   
     class func buildRenderPipelineWithDevice(device: MTLDevice, view: MTKView) throws -> MTLRenderPipelineState {
-        guard let path = Bundle.main.path(forResource: "Shaders", ofType: "metal") else { fatalError() }
+        guard let path = Bundle.main.path(forResource: "Shaders", ofType: "txt") else { fatalError() }
         let input = try String(contentsOfFile: path, encoding: String.Encoding.utf8)
         let library = try device.makeLibrary(source: input, options: nil)
         let vertexFunction = library.makeFunction(name: "vertex_transform")
@@ -54,7 +54,7 @@ public class Render : NSObject, MTKViewDelegate {
         pipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
         return try device.makeRenderPipelineState(descriptor: pipelineDescriptor)
     }
-  
+    
     public func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {}
   
     public func draw(in view: MTKView) {
