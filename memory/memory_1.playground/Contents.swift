@@ -11,7 +11,7 @@ guard let outBuffer = device.makeBuffer(bytes: myVector, length: length, options
 for (index, _) in myVector.enumerated() { myVector[index] = Float(index) }
 var inBuffer = device.makeBuffer(bytes: myVector, length: length, options: [])
 
-let path = Bundle.main.path(forResource: "memory", ofType: "metal")
+let path = Bundle.main.path(forResource: "memory", ofType: "txt")
 let input = try String(contentsOfFile: path!, encoding: String.Encoding.utf8)
 let library = try device.makeLibrary(source: input, options: nil)
 let function = library.makeFunction(name: "compute")!

@@ -13,7 +13,9 @@ public class MetalView: NSObject, MTKViewDelegate {
         view.colorPixelFormat = .bgra8Unorm
         device = MTLCreateSystemDefaultDevice()!
         commandQueue = device.makeCommandQueue()
-        let library = try! device.makeLibrary(source: shader, options: nil)
+        guard let path = Bundle.main.path(forResource: "Shaders", ofType: "txt") else { fatalError() }
+        let input = try! String(contentsOfFile: path, encoding: String.Encoding.utf8)
+        let library = try! device.makeLibrary(source: input, options: nil)
         let function = library.makeFunction(name:"k")!
         cps = try! device.makeComputePipelineState(function: function)
         
